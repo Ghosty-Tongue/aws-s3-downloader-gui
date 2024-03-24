@@ -5,9 +5,9 @@ Provide a command line ability to download some, or all, of the public/authorize
 Python3 - Thanks to dreamflasher (https://github.com/dreamflasher) for migrating from Python2 to 3!
 
 # Reason
-As I was going through, looking for public AWS S3 buckets that contained PII, I realized that I wanted to be able to download the XML and a subset of data to show companies what data they had exposed. I didn't want to do this manually and I wanted to be able to have ALL of the XML (AWS paginates S3 content per 1k keys).
+As I was going through, looking for public AWS S3 buckets that contained PII, I realized that I wanted to be able to download the XML and a subset of data to show companies what data they had exposed. I didn't want to do this manually and I wanted to be able to have ALL of the XML (AWS paginates S3 content per 1k keys). The GUI was added to enhance user experience and provide a more intuitive way of interacting with the application.
 
-# Use
+# Command-line Use
 - Just get the XML, downloaded to the working directory under a the subfolder [bucket_name]:  
   - `./download_bucket.py -n [bucket_name] -x`
 
@@ -26,7 +26,18 @@ As I was going through, looking for public AWS S3 buckets that contained PII, I 
 - Download using an API key (e.g. for buckets that allow any authenticated user to access it):  
   - `./download_bucket.py -n [bucket_name] -d -ak "AWS_ACCESS_KEY" -sk "AWS_SECRET_KEY"`
 
+# GUI Use
+- Run the script and input 1 for public bucket or 2 for authenticated bucket.
+- Provide the bucket name, output folder, AWS access key, and AWS secret key in the GUI.
+- Click on buttons to select the output folder and start the download process.
+  
 # Notes
 - If a file is private, the download will be the XML saying that file access is denied.
 - Some keys are just folder names, these will not be downloaded but the keys within the bucket will (e.g. a key could be "folder/" but there will be keys with content like "folder/file1").
 - You can add multiple "-i" or "-e" parameters. Each set of "-i" and "-e" parameters will be OR'd and the "-i" and "-e" parameters are AND'd together. These are case insensitive.
+
+# Additional Notes for GUI
+- The GUI allows for a more user-friendly interaction compared to command-line usage.
+- It provides input fields and buttons for easy input and selection of parameters.
+- Users can navigate through the GUI easily and initiate the download process with a click of a button.
+- GUI enhances accessibility and usability, especially for users who are not comfortable with command-line interfaces.
