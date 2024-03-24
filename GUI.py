@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
+import configparser
 from module.download_bucket_public import download_bucket_public
 from module.download_bucket_auth import download_bucket_auth
 from download_bucket_obj import Bucket
@@ -9,8 +10,24 @@ class S3DownloaderApp:
     def __init__(self, root):
         self.root = root
         self.root.title("AWS S3 Downloader")
-
+        
+        self.load_config()
         self.create_main_gui()
+
+    def load_config(self):
+        self.config_file = "config.ini"
+        self.config = configparser.ConfigParser()
+        if os.path.exists(self.config_file):
+            self.config.read(self.config_file)
+            self.last_output_folder = self.config.get("Settings", "LastOutputFolder")
+        else:
+            self.last_output_folder = ""
+            self.save_config()
+
+    def save_config(self):
+        self.config["Settings"] = {"LastOutputFolder": self.last_output_folder}
+        with open(self.config_file, "w") as configfile:
+            self.config.write(configfile)
 
     def create_main_gui(self):
         self.clear_gui()
@@ -34,7 +51,7 @@ class S3DownloaderApp:
         self.clear_gui()
 
         self.bucket_name_var = tk.StringVar()
-        self.output_folder_var = tk.StringVar()
+        self.output_folder_var = tk.StringVar(value=self.last_output_folder)
         self.url_var = tk.StringVar()
 
         tk.Label(self.root, text="Bucket Name:").pack()
@@ -55,7 +72,7 @@ class S3DownloaderApp:
         self.clear_gui()
 
         self.bucket_name_var = tk.StringVar()
-        self.output_folder_var = tk.StringVar()
+        self.output_folder_var = tk.StringVar(value=self.last_output_folder)
         self.url_var = tk.StringVar()
         self.access_key_var = tk.StringVar()
         self.secret_key_var = tk.StringVar()
@@ -84,6 +101,7 @@ class S3DownloaderApp:
         bucket_name = self.bucket_name_var.get()
         url = self.url_var.get()
         output_folder = self.output_folder_var.get()
+        self.last_output_folder = output_folder
 
         bucket = Bucket(
             bucket_name=bucket_name,
@@ -100,6 +118,7 @@ class S3DownloaderApp:
         )
         download_bucket_public(bucket)
         messagebox.showinfo("Download Complete", "Public bucket download complete.")
+        self.save_config()
 
     def download_authenticated_bucket(self):
         bucket_name = self.bucket_name_var.get()
@@ -107,6 +126,7 @@ class S3DownloaderApp:
         access_key = self.access_key_var.get()
         secret_key = self.secret_key_var.get()
         output_folder = self.output_folder_var.get()
+        self.last_output_folder = output_folder
 
         if not access_key or not secret_key:
             messagebox.showerror("Error", "Please enter access key and secret key.")
@@ -125,16 +145,15 @@ class S3DownloaderApp:
             quiet=False,
             last_key=None
         )
-        download_bucket_auth(bucket)
-        messagebox.showinfo("Download Complete", "Authenticated bucket download complete.")
-
+       
     def clear_gui(self):
         for widget in self.root.winfo_children():
             widget.destroy()
 
     def select_output_folder(self):
         folder_path = filedialog.askdirectory()
-        self.output_folder_var.set(folder_path)
+        if folder_path:
+            self.output_folder_var.set(folder_path)
 
 if __name__ == "__main__":
     root = tk.Tk()
