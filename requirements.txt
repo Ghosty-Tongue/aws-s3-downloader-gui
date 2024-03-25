@@ -2,3 +2,6 @@ boto
 tqdm
 joblib
 requests
+tkinter
+configparser
+os
