@@ -5,6 +5,7 @@ import configparser
 from module.download_bucket_public import download_bucket_public
 from module.download_bucket_auth import download_bucket_auth
 from download_bucket_obj import Bucket
+from requests.exceptions import ChunkedEncodingError, ConnectionError, RequestException
 
 class S3DownloaderApp:
     def __init__(self, root):
@@ -116,7 +117,22 @@ class S3DownloaderApp:
             quiet=False,
             last_key=None
         )
-        download_bucket_public(bucket)
+
+        last_key = None
+        while True:
+            try:
+                bucket.last_key = last_key
+                last_key = download_bucket_public(bucket)
+                if last_key is None:
+                    break  # Download complete
+            except (ChunkedEncodingError, ConnectionError, RequestException) as e:
+                messagebox.showerror(
+                    "Download Error",
+                    f"An error occurred while downloading. Error: {str(e)}. Retrying...",
+                )
+                print(f"Retrying download... Attempt {last_key}")
+                continue
+
         messagebox.showinfo("Download Complete", "Public bucket download complete.")
         self.save_config()
 
@@ -145,7 +161,25 @@ class S3DownloaderApp:
             quiet=False,
             last_key=None
         )
-       
+
+        last_key = None
+        while True:
+            try:
+                bucket.last_key = last_key
+                last_key = download_bucket_auth(bucket)
+                if last_key is None:
+                    break  # Download complete
+            except (ChunkedEncodingError, ConnectionError, RequestException) as e:
+                messagebox.showerror(
+                    "Download Error",
+                    f"An error occurred while downloading. Error: {str(e)}. Retrying...",
+                )
+                print(f"Retrying download... Attempt {last_key}")
+                continue
+
+        messagebox.showinfo("Download Complete", "Authenticated bucket download complete.")
+        self.save_config()
+
     def clear_gui(self):
         for widget in self.root.winfo_children():
             widget.destroy()
