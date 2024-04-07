@@ -8,8 +8,6 @@ import tqdm
 import joblib
 import boto
 
-
-
 class S3Downloader:
     def __init__(self):
         self.load_config()
