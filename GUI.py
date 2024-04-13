@@ -6,6 +6,9 @@ from module.download_bucket_public import download_bucket_public
 from module.download_bucket_auth import download_bucket_auth
 from download_bucket_obj import Bucket
 from requests.exceptions import ChunkedEncodingError, ConnectionError, RequestException
+import tqdm
+import joblib
+import boto
 
 class S3DownloaderApp:
     def __init__(self, root):
